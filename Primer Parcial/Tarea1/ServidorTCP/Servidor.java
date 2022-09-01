@@ -2,7 +2,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 
 public class Servidor {
     static class Worker extends Thread {
@@ -20,8 +19,18 @@ public class Servidor {
                 int num2 = entrada.readInt();
                 int num3 = entrada.readInt();
 
+                String result = "";
                 for (int i = num2; i <= num3; i++) {
-                    salida.write(divide(num1, i).getBytes());
+                    result = divide(num1, i);
+                    if(result == "DIVIDE"){
+                        salida.writeBytes(result);
+                        System.out.println(result);
+                        break;
+                    }
+                    else{
+                        salida.writeBytes(result);
+                        System.out.println(result);
+                    }
                 }
 
                 conexion.close();
@@ -52,11 +61,10 @@ public class Servidor {
         String result = "";
 
         if (n % ni == 0) {
-            result = ni + " DIVIDE ";
+            result = "DIVIDE";
         } else {
-            result = ni + " NO DIVIDE ";
+            result = "NO DIVIDE";
         }
-
         return result;
     }
 }
