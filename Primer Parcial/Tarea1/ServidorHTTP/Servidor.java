@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import javax.sql.rowset.spi.SyncResolver;
+
 public class Servidor {
     static class Worker extends Thread {
         Socket conexion;
@@ -12,7 +14,7 @@ public class Servidor {
             this.conexion = conexion;
         }
 
-        // Sincronizacion de los threads
+        // Objeto para la sincronizacion
         static Object obj = new Object();
 
         public void run() {
@@ -32,17 +34,22 @@ public class Servidor {
                 // Separando el numero del HTTP1.1
                 String[] number = part2.split(" ");
                 String num = number[0];
+
                 // Convertir el numero a entero
                 int n = Integer.parseInt(num);
                 // Obtencion del valor de m
                 int m = n / 2;
-                // Intervalos a mandar a los 4 servidoresA
-                int m1 = m / 4;
-                int m2 = m1 + 1;
-                int m22 = m1 * 2;
-                int m3 = m22 + 1;
-                int m33 = m1 * 3;
-                int m4 = m33 + 1;
+                for (int i = 0; i < 4; i++)
+                    // sincronizacion
+                    synchronized(obj){
+                        // Intervalos a mandar a los 4 servidoresA
+                        int m1 = m / 4;
+                        int m2 = m1 + 1;
+                        int m22 = m1 * 2;
+                        int m3 = m22 + 1;
+                        int m33 = m1 * 3;
+                        int m4 = m33 + 1;
+                    }
 
                 if (s.startsWith("GET /primo?numero=" + num)) {
                     String respuesta = "<html><h1>El número que ingresaste es:</h1></html>";

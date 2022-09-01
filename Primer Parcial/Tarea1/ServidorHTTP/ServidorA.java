@@ -19,8 +19,18 @@ public class ServidorA {
                 int num2 = entrada.readInt();
                 int num3 = entrada.readInt();
 
+                String result = "";
                 for (int i = num2; i <= num3; i++) {
-                    salida.write(divide(num1, i).getBytes());
+                    result = divide(num1, i);
+                    if(result == "DIVIDE"){
+                        salida.writeBytes(result);
+                        System.out.println(result);
+                        break;
+                    }
+                    else{
+                        salida.writeBytes(result);
+                        System.out.println(result);
+                    }
                 }
 
                 conexion.close();
@@ -51,11 +61,10 @@ public class ServidorA {
         String result = "";
 
         if (n % ni == 0) {
-            result = ni + " DIVIDE ";
+            result = "DIVIDE";
         } else {
-            result = ni + " NO DIVIDE ";
+            result = "NO DIVIDE";
         }
-
         return result;
     }
 }
