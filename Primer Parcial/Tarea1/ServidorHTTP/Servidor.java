@@ -1,12 +1,8 @@
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.util.Date;
 
 public class Servidor {
     static class Worker extends Thread {
@@ -16,16 +12,40 @@ public class Servidor {
             this.conexion = conexion;
         }
 
+        // Sincronizacion de los threads
+        static Object obj = new Object();
+
         public void run() {
             try {
+
                 BufferedReader entrada = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
                 PrintWriter salida = new PrintWriter(conexion.getOutputStream());
 
+                // Leer la url
                 String s = entrada.readLine();
+                // Impresion del valor ingresado por el usuario en consola
                 System.out.println(s);
 
-                if (s.startsWith("GET /hola")) {
-                    String respuesta = "<html><button onclick='alert(\"Se presionó el botón\")'>Aceptar</button></html>";
+                // Obtencion del numero a partir de la url
+                String[] parts = s.split("=");
+                String part2 = parts[1];
+                // Separando el numero del HTTP1.1
+                String[] number = part2.split(" ");
+                String num = number[0];
+                // Convertir el numero a entero
+                int n = Integer.parseInt(num);
+                // Obtencion del valor de m
+                int m = n / 2;
+                // Intervalos a mandar a los 4 servidoresA
+                int m1 = m / 4;
+                int m2 = m1 + 1;
+                int m22 = m1 * 2;
+                int m3 = m22 + 1;
+                int m33 = m1 * 3;
+                int m4 = m33 + 1;
+
+                if (s.startsWith("GET /primo?numero=" + num)) {
+                    String respuesta = "<html><h1>El número que ingresaste es:</h1></html>";
                     salida.println("HTTP/1.1 200 OK");
                     salida.println("Content-type: text/html; charset=utf-8");
                     salida.println("Content-length: " + respuesta.length());
@@ -33,8 +53,6 @@ public class Servidor {
                     salida.flush();
                     salida.println(respuesta);
                     salida.flush();
-                    salida.println("Server: ServidorHTTP.java");
-                    salida.println("Date: " + new Date());
                 }
 
                 else {
@@ -52,12 +70,11 @@ public class Servidor {
     }
 
     public static void main(String[] args) throws Exception {
-        ServerSocket servidor = new ServerSocket(50000);
+        ServerSocket servidor = new ServerSocket(8080);
         for (;;) {
             Socket conexion = servidor.accept();
             Worker w = new Worker(conexion);
             w.start();
         }
     }
-
 }
