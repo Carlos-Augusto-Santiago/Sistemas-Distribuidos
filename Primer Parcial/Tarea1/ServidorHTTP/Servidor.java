@@ -68,10 +68,9 @@ public class Servidor {
     }
 
     public static void main(String[] args) throws Exception {
-        ServerSocket servidor = new ServerSocket(8080);
-        for (;;) {
-            Socket conexion = servidor.accept();
-            Worker w = new Worker(conexion);
+        for (int i = 50000; i < 50004; i++) {
+            Socket servidor = new Socket("localhost", i);
+            Worker w = new Worker(servidor);
             w.start();
         }
     }
