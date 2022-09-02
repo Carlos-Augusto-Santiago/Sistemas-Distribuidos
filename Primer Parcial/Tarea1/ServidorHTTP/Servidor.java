@@ -4,8 +4,6 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import javax.sql.rowset.spi.SyncResolver;
-
 public class Servidor {
     static class Worker extends Thread {
         Socket conexion;
@@ -39,20 +37,13 @@ public class Servidor {
                 int n = Integer.parseInt(num);
                 // Obtencion del valor de m
                 int m = n / 2;
-                for (int i = 0; i < 4; i++)
-                    // sincronizacion
-                    synchronized(obj){
-                        // Intervalos a mandar a los 4 servidoresA
-                        int m1 = m / 4;
-                        int m2 = m1 + 1;
-                        int m22 = m1 * 2;
-                        int m3 = m22 + 1;
-                        int m33 = m1 * 3;
-                        int m4 = m33 + 1;
-                    }
+                
+                salida.write(n);
+                salida.write(2);
+                salida.write(m);
 
                 if (s.startsWith("GET /primo?numero=" + num)) {
-                    String respuesta = "<html><h1>El número que ingresaste es:</h1></html>";
+                    String respuesta = "<html><h1>Número primo</h1></html>";
                     salida.println("HTTP/1.1 200 OK");
                     salida.println("Content-type: text/html; charset=utf-8");
                     salida.println("Content-length: " + respuesta.length());
