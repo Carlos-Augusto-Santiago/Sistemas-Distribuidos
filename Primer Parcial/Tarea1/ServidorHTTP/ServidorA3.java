@@ -41,7 +41,7 @@ public class ServidorA3 {
     }
 
     public static void main(String[] args) throws Exception {
-        ServerSocket servidor = new ServerSocket(50001);
+        ServerSocket servidor = new ServerSocket(50002);
         for (;;) {
             Socket conexion = servidor.accept();
             Worker w = new Worker(conexion);
