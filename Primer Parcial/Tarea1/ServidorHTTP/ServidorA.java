@@ -1,70 +1,96 @@
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ServidorHTTP;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ *
+ * @author Laxelott
+ */
 public class ServidorA {
-    static class Worker extends Thread {
-        Socket conexion;
 
-        Worker(Socket conexion) {
-            this.conexion = conexion;
-        }
+	static class Worker extends Thread {
 
-        public void run() {
-            try {
-                DataOutputStream salida = new DataOutputStream(conexion.getOutputStream());
-                DataInputStream entrada = new DataInputStream(conexion.getInputStream());
-                int num1 = entrada.readInt();
-                int num2 = entrada.readInt();
-                int num3 = entrada.readInt();
+		Socket conexion;
 
-                String result = "";
-                for (int i = num2; i <= num3; i++) {
-                    result = divide(num1, i);
-                    if(result == "DIVIDE"){
-                        salida.writeBytes(result);
-                        System.out.println(result);
-                        break;
-                    }
-                    else{
-                        salida.writeBytes(result);
-                        System.out.println(result);
-                    }
-                }
+		Worker(Socket conexion) {
+			this.conexion = conexion;
+		}
 
-                conexion.close();
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-        }
-    }
+		@Override
+		public void run() {
+			try {
+				PrintWriter salida = new PrintWriter(conexion.getOutputStream());
+				BufferedReader entrada = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+				salida.flush();
 
-    public static void main(String[] args) throws Exception {
-        ServerSocket servidor = new ServerSocket(50000);
-        for (;;) {
-            Socket conexion = servidor.accept();
-            Worker w = new Worker(conexion);
-            w.start();
-        }
-    }
+				String stringEntrada;
+				System.out.println("1");
+				while (entrada.ready()) {
+					System.out.println("1");
+					stringEntrada = entrada.readLine();
+					System.out.println("1");
+					String[] entradas = stringEntrada.split(",");
+					System.out.println("1");
 
-    static void read(DataInputStream f, byte[] b, int posicion, int longitud) throws Exception {
-        while (longitud > 0) {
-            int n = f.read(b, posicion, longitud);
-            posicion += n;
-            longitud -= n;
-        }
-    }
+					int num1 = Integer.valueOf(entradas[0]);
+					int num2 = Integer.valueOf(entradas[1]);
+					int num3 = Integer.valueOf(entradas[2]);
 
-    static String divide(int n, int ni) {
-        String result = "";
+					String result = "";
+					for (int i = num2; i <= num3; i++) {
+						result = divide(num1, i);
+						if ("DIVIDE".equals(result)) {
+							break;
+						}
+					}
+					salida.println(result);
+					salida.flush();
+					System.out.println(result);
+				}
 
-        if (n % ni == 0) {
-            result = "DIVIDE";
-        } else {
-            result = "NO DIVIDE";
-        }
-        return result;
-    }
+				conexion.close();
+			} catch (NumberFormatException | IOException ex) {
+				Logger.getLogger(ServidorA.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		int puerto;
+		Scanner datos = new Scanner(System.in);
+
+		System.out.print("Inserte el puerto: ");
+		puerto = datos.nextInt();
+
+		ServerSocket servidor = new ServerSocket(puerto);
+		for (;;) {
+			Socket conexion = servidor.accept();
+			Worker w = new Worker(conexion);
+			w.start();
+		}
+	}
+
+	static String divide(int n, int ni) {
+		String result;
+
+		if (n % ni == 0) {
+			result = "DIVIDE";
+		} else {
+			result = "NO DIVIDE";
+		}
+		return result;
+	}
 }
