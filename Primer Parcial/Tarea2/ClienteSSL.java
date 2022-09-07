@@ -1,57 +1,77 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
 import javax.net.ssl.SSLSocketFactory;
 
 public class ClienteSSL {
 
-  public static void main(String[] args) {
-    System.setProperty("javax.net.ssl.trustStore", "keystore_cliente.jks");
-    System.setProperty("javax.net.ssl.trustStorePassword", "123456");
-    for (;;) try {
-      //Creacion del servidor seguro con reintentos de conexion
-      SSLSocketFactory cliente = (SSLSocketFactory) SSLSocketFactory.getDefault();
-      Socket conexion = cliente.createSocket("localhost", 50000);
-      DataOutputStream salida = new DataOutputStream(
-        conexion.getOutputStream()
-      );
-      DataInputStream entrada = new DataInputStream(conexion.getInputStream());
-      //Envio de datos
-      //Se envia un valor de prueba
-      salida.writeDouble(123456789.123456789);
-      //Lectura del archivo sin ruta
-      Scanner scanner = new Scanner(System.in); 
-      //Nombre del archivo
-      System.out.println("Ingresa el nombre de los archivo (sin ruta), separar cada nombre con comas: ");
-      String names = scanner.nextLine();
-      String[] values = names.split("\\,");
-      System.out.println(Arrays.toString(values));
+	static class Names {
+		// Variable para recibir los nombres de los archivos
+		static List<String> values = new ArrayList<String>();
+	}
 
-      // Comprobar que esta el archivo en el disco duro
-      File archivo = new File("ClienteSSL.class");
-      if (archivo.exists()) {
-        System.out.println("wuu");
-      }
-      scanner.close();
-      //Guardar el archivo en el disco
-      //Recibir mensaje "OK" si todo se ejecutó con orden
-      Thread.sleep(1000);
-      conexion.close();
-      break;
-    } catch (Exception e) {
+	static class Worker extends Thread {
+		Socket conexion;
 
-    }
-  }
+		Worker(Socket conexion) {
+			this.conexion = conexion;
+			for (int i = 0; i < Names.values.size(); i++) {
+				
+		}
 
-  static void read(DataInputStream f, byte[] b, int posicion, int longitud)
-    throws Exception {
-    while (longitud > 0) {
-      int n = f.read(b, posicion, longitud);
-      posicion += n;
-      longitud -= n;
-    }
-  }
+		public void run() {
+			try {
+
+				DataOutputStream salida = new DataOutputStream(
+						conexion.getOutputStream());
+				DataInputStream entrada = new DataInputStream(conexion.getInputStream());
+				// Envio de datos
+				// Se envia un valor de prueba
+				salida.writeDouble(123456789.123456789);
+
+				// Comprobar que esta el archivo en el disco duro
+				File archivo = new File(Names.values.get(0));
+				if (archivo.exists()) {
+					System.out.println("wuu");
+				}
+				// Guardar el archivo en el disco
+				// Recibir mensaje "OK" si todo se ejecutó con orden
+				Thread.sleep(1000);
+				conexion.close();
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	public static void main(String[] args) {
+		// Checar si existen valores en la linea de comandos
+		if (args.length == 0)
+			System.exit(0);
+		// Mostrar los valores de la linea de comandos
+		for (int counter = 0; counter < args.length; counter++) {
+			Names.values.add(args[counter]);
+		}
+
+		// Propiedades para el cliente con su keystore
+		System.setProperty("javax.net.ssl.trustStore", "keystore_cliente.jks");
+		System.setProperty("javax.net.ssl.trustStorePassword", "123456");
+
+		for (;;) {
+			// Creacion del servidor seguro con reintentos de conexion
+			SSLSocketFactory cliente = (SSLSocketFactory) SSLSocketFactory.getDefault();
+			Socket conexion;
+			try {
+				conexion = cliente.createSocket("localhost", 50000);
+				Worker w = new Worker(conexion);
+				w.start();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
 }

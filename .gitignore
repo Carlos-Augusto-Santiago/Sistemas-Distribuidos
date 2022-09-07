@@ -3,3 +3,6 @@
 
 #Ignorar las clases
 *.class
+
+#Ignorar el .vscode
+*.vscode
