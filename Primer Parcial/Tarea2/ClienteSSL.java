@@ -23,12 +23,11 @@ public class ClienteSSL {
       //Se envia un valor de prueba
       salida.writeDouble(123456789.123456789);
       //Lectura del archivo sin ruta
-      Scanner scanner = new Scanner(System.in);
+      Scanner scanner = new Scanner(System.in); 
       //Nombre del archivo
-      System.out.println("Ingresa el nombre de los archivo (sin ruta), separar cada nombre con espacios");
-      System.out.println("Si la ruta tiene espacios, ingresar entre comillas simples: ");
+      System.out.println("Ingresa el nombre de los archivo (sin ruta), separar cada nombre con comas: ");
       String names = scanner.nextLine();
-      String[] values = names.split("\\' '"+" ");
+      String[] values = names.split("\\,");
       System.out.println(Arrays.toString(values));
 
       // Comprobar que esta el archivo en el disco duro
