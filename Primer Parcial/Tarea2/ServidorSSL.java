@@ -35,7 +35,7 @@ public class ServidorSSL {
 		System.setProperty("javax.net.ssl.keyStore", "keystore_servidor.jks");
 		System.setProperty("javax.net.ssl.keyStorePassword", "1234567");
 		SSLServerSocketFactory socket_factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-		ServerSocket socket_servidor = socket_factory.createServerSocket(50000);
+		ServerSocket socket_servidor = socket_factory.createServerSocket(8080);
 		for (;;) {
 			Socket conexion = socket_servidor.accept();
 			Worker w = new Worker(conexion);

@@ -12,6 +12,7 @@ public class Servidor2 {
             this.conexion = conexion;
         }
 
+        @Override
         public void run() {
             try {
                 DataOutputStream salida = new DataOutputStream(conexion.getOutputStream());

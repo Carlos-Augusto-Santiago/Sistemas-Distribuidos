@@ -14,34 +14,17 @@ public class ClienteSSL {
 		static List<String> values = new ArrayList<String>();
 	}
 
-	static class Worker extends Thread {
+	static class Worker {
 		Socket conexion;
 
 		Worker(Socket conexion) {
 			this.conexion = conexion;
-			for (int i = 0; i < Names.values.size(); i++) {
-				
 		}
 
 		public void run() {
 			try {
 
-				DataOutputStream salida = new DataOutputStream(
-						conexion.getOutputStream());
-				DataInputStream entrada = new DataInputStream(conexion.getInputStream());
-				// Envio de datos
-				// Se envia un valor de prueba
-				salida.writeDouble(123456789.123456789);
-
-				// Comprobar que esta el archivo en el disco duro
-				File archivo = new File(Names.values.get(0));
-				if (archivo.exists()) {
-					System.out.println("wuu");
-				}
-				// Guardar el archivo en el disco
-				// Recibir mensaje "OK" si todo se ejecutó con orden
 				Thread.sleep(1000);
-				conexion.close();
 			} catch (Exception e) {
 			}
 		}
@@ -49,29 +32,44 @@ public class ClienteSSL {
 
 	public static void main(String[] args) {
 		// Checar si existen valores en la linea de comandos
-		if (args.length == 0)
+		if (args.length == 0) {
+			System.out.println("No ingresaste nombres de archivos");
 			System.exit(0);
+		}
 		// Mostrar los valores de la linea de comandos
 		for (int counter = 0; counter < args.length; counter++) {
 			Names.values.add(args[counter]);
 		}
 
-		// Propiedades para el cliente con su keystore
-		System.setProperty("javax.net.ssl.trustStore", "keystore_cliente.jks");
-		System.setProperty("javax.net.ssl.trustStorePassword", "123456");
-
+		Socket conexion = null;
 		for (;;) {
-			// Creacion del servidor seguro con reintentos de conexion
-			SSLSocketFactory cliente = (SSLSocketFactory) SSLSocketFactory.getDefault();
-			Socket conexion;
 			try {
-				conexion = cliente.createSocket("localhost", 50000);
-				Worker w = new Worker(conexion);
-				w.start();
-			} catch (IOException e) {
-				e.printStackTrace();
+				// Propiedades para el cliente con su keystore
+				System.setProperty("javax.net.ssl.trustStore", "keystore_cliente.jks");
+				System.setProperty("javax.net.ssl.trustStorePassword", "123456");
+				// Creacion del servidor seguro con reintentos de conexion
+				SSLSocketFactory cliente = (SSLSocketFactory) SSLSocketFactory.getDefault();
+				conexion = cliente.createSocket("localhost", 8080);
+				DataOutputStream salida = new DataOutputStream(conexion.getOutputStream());
+				DataInputStream entrada = new DataInputStream(conexion.getInputStream());
+				// Envio de datos
+				// Se envia un valor de prueba
+				salida.writeDouble(123456789.123456789);
+
+				// Comprobar que esta el archivo en el disco duro
+				for (int i = 0; i < Names.values.size(); i++) {
+					File archivo = new File(Names.values.get(i));
+					if (archivo.exists() && archivo.isFile()) {
+						System.out.println("El archivo existe");
+					}
+				}
+				// Guardar el archivo en el disco
+				// Recibir mensaje "OK" si todo se ejecutó con orden
+				Thread.sleep(1000);
+				conexion.close();
+				break;
+			} catch (Exception e) {
 			}
 		}
-
 	}
 }
