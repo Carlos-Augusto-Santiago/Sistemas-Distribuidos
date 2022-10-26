@@ -1,6 +1,7 @@
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
@@ -11,6 +12,16 @@ public class Matrices {
     static float A[][] = new float[N][N];
     static float B[][] = new float[N][N];
     static float C[][] = new float[N][N];
+
+    public static float[][] getM(DataInputStream entrada) throws IOException {
+        float[][] temp = new float[N / 4][N];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                temp[i][j] = entrada.readLong();
+            }
+        }
+        return temp;
+    }
 
     public static void printM(float[][] m) {
         for (int i = 0; i < N; i++) {
@@ -69,7 +80,7 @@ public class Matrices {
 
                 // checamos el nodo correspondiente para hacer
                 if (nodo == 1) {
-                    // envio de A1
+                    // envio de A1 y A2
                     for (int i = 0; i < N; i++) {
                         if (i == N / 4) {
                             // A1
@@ -166,33 +177,74 @@ public class Matrices {
             DataInputStream entrada = new DataInputStream(conexion.getInputStream());
             // Enviar el nodo
             salida.writeInt(nodo);
-            float a[][] = new float[N][N];
-            float b1[][] = new float[N / 4][N];
-            float b2[][] = new float[N / 4][N];
-            float b3[][] = new float[N / 4][N];
-            float b4[][] = new float[N / 4][N];
-            float c[][] = new float[N / 4][N / 4];
 
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    b[i][j] = entrada.readLong();
+            float[][] a1 = new float[ N / 4][N];
+            float[][] a2 = new float[ N / 4][N];
+
+            float[][] b1 = new float[ N / 4][N];
+            float[][] b2 = new float[ N / 4][N];
+            float[][] b3 = new float[ N / 4][N];
+            float[][] b4 = new float[ N / 4][N];
+
+            float[][] c1 = new float[ N / 4][N / 4];
+            float[][] c2 = new float[ N / 4][N / 4];
+
+            //Recibir B1-B4
+            for (int i=0; i<N/4; i++) {
+                for (int j=0; j<N; j++) {
+                    b1[i][j] = entrada.readFloat();
                 }
             }
-            for (int i = 0; i < N / 2; i++) {
-                for (int j = 0; j < N; j++) {
-                    a[i][j] = entrada.readLong();
+            for (int i=0; i<N/4; i++) {
+                for (int j=0; j<N; j++) {
+                    b2[i][j] = entrada.readFloat();
                 }
             }
-            for (int i = 0; i < N / 4; i++) {
-                for (int j = 0; j < N / 4; j++) {
+            for (int i=0; i<N/4; i++) {
+                for (int j=0; j<N; j++) {
+                    b3[i][j] = entrada.readFloat();
+                }
+            }
+            for (int i=0; i<N/4; i++) {
+                for (int j=0; j<N; j++) {
+                    b4[i][j] = entrada.readFloat();
+                }
+            }
+            //recibir A1-A2
+            for (int i=0; i<N/4; i++) {
+                for (int j=0; j<N; j++) {
+                    a1[i][j] = entrada.readFloat();
+                }
+            }
+            for (int i=0; i<N/4; i++) {
+                for (int j=0; j<N; j++) {
+                    a2[i][j] = entrada.readFloat();
+                }
+            }
+            // obtener C1 y C2
+            for (int i = 0; i < N/4; i++) {
+                for (int j = 0; j < N/4; j++) {
                     for (int k = 0; k < N; k++) {
-                        c[i][j] += a[i][k] * b[j][k];
+                        c1[i][j] += a1[i][k] * b1[j][k];
                     }
                 }
             }
+            for (int i = 0; i < N/4; i++) {
+                for (int j = 0; j < N/4; j++) {
+                    for (int k = 0; k < N; k++) {
+                        c2[i][j] += a1[i][k] * b1[j][k];
+                    }
+                }
+            }
+            // enviar C1 y C2
+            for (int i=0; i<N/2; i++) {
+                for (int j=0; j<N/2; j++) {
+                    salida.writeFloat(c1[i][j]);
+                }
+            }
             for (int i = 0; i < N / 4; i++) {
                 for (int j = 0; j < N / 4; j++) {
-                    salida.writeFloat(c[i][j]);
+                    salida.writeFloat(c2[i][j]);
                 }
             }
 
